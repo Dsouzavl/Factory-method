@@ -1,5 +1,7 @@
 # O padrão _Factory method_
 
+## Escrito por Victor Souza A.k.a _vhost_
+
 Esse padrão de projeto, tem o conceito de encapsular a criação de objetos em um método de uma classe, onde essa classe vai ter apenas a responsabilidade de instânciar e devolver objetos. Porque utilizamos esse padrão? Note o código abaixo:
 
 ```csharp
