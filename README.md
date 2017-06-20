@@ -10,43 +10,43 @@ namespace StreetFighter{
     {
         private Character opponent;
 
-        Console.WriteLine("Choose your opponent for start: ");
-        string opponentName = Console.ReadLine();
-
-        //several crime here
-        if(opponent == "Ryu")
-        {
-            this.opponent = new Ryu();
-        }
-        else if(opponent =="Chun li")
-        {
-            this.opponent = new ChunLi();
-        }
-        else if(opponent == "Blanka")
-        {
-            this.opponent = new Blanka();
-        }
-        //...
-
-        startFight(opponent);
-
         static void Main(String[] args)
-        {
-            public startFight(Character opponentOne)
+        {          
+            Console.WriteLine("Choose your opponent for start: ");
+            string opponentName = Console.ReadLine();
+
+            
+            if(opponentName == "Ryu")
             {
-                Console.WriteLine($"Get ready for the next battle, op1 :{opponentOne}, op2: {new RandomOpponent});
+                this.opponent = new Ryu();
             }
+            else if(opponentName =="Chun li")
+            {
+                this.opponentName = new ChunLi();
+            }
+            else if(opponentName == "Blanka")
+            {
+                this.opponent = new Blanka();
+            }
+            //...
+
+            startFight(opponent);
+        }
+
+        public startFight(Character opponentOne)
+        {
+            Console.WriteLine($"Get ready for the next battle, op1 :{opponentOne}, op2: {new RandomOpponent});
         }
     }
 }
 
 ```
-  Temos vários problemas nesse código, ele não está fechado para modificações, toda vez que tivermos que escolher qual objeto devemos instânciar para realizar algo, essa cadeia de if's se repetirá, ( _e trocar por switch case não melhora kkk_ ), e essa classe não está com responsabilidade única, terá um sobrepeso enorme devido as instânciações que ela deverá fazer para executar os métodos que precisarem. Aí que entra o _Factory method_ delegaremos a função de criar objetos e nos devolver a uma classe específica, isso permitirá a escolha de qual objeto instânciar em tempo de execução de uma forma mais flexível, sem ter que replicar essa cadeia de if's. Observe:
+  Temos vários problemas nesse código, ele não está fechado para modificações, toda vez que tivermos que escolher qual objeto devemos instânciar para realizar algo, essa cadeia de if's se repetirá, ( _e trocar por switch case não melhora kkk_ ), e essa classe não está com responsabilidade única, terá um sobrepeso enorme devido as instânciações que ela deverá fazer para executar os métodos que precisarem. Aí que entra o _Factory method_ delegaremos a função de criar objetos e nos devolver, a uma classe específica, isso permitirá a escolha de qual objeto instânciar em tempo de execução de uma forma mais flexível, sem ter que replicar essa cadeia de if's. Observe:
 
 ```csharp
 public abstract class CharacterFactory
 {
-    public abstract Character GetNewCharacter(Character character);
+    public abstract Character GetNewCharacter(string characterName);
 }
 ``` 
 ```csharp
@@ -62,9 +62,9 @@ public abstract class Character
 ```csharp
 public class StreetFighterFactory : CharacterFactory
 {
-    public override Character GetNewCharacter(Character StreetFighterCharacter){
+    public override Character GetNewCharacter(string StreetFighterCharacterName){
         
-        switch(StreetFighterCharacter)
+        switch(StreetFighterCharacterName)
         {
             case "Ryu":
                 return new Ryu();
@@ -91,8 +91,8 @@ public class Ryu : Character
     public string SpecialHit = "Hadouken";
 }
 ```
-Repare que agora, nosso código está muito mais flexível, temos uma classe abstrata que representa a nossa _Factory_ onde contém nosso _Factory method_ que recebe um valor do tipo Character, que é outra classe abstrata,
-e retorna um objeto de uma classe concreta que herda dessa classe. Com essa implementação, tiramos a responsabilidade de decidir qual objeto instânciar da classe principal, e deixamos que as subclasses de CharacterFactory decidirem, através dos seus _Factory methods_, conseguimos manter o princípio de responsabilidade única para as classes, podemos agora criar várias _Factories_ que podem cuidar de outros _Characters_, se quiséssemos adicionar uma factory para personagens do **Mario**,**Tekken** ou **Sonic**, ao invés de uma cadeia de if's e elses, basta estendermos os comportamentos das nossas classes abstratas. Esse é o conceito, criamos classes abstratas criadoras e classes que representam o produto, criamos implementações concretas, onde seus métodos cuidarão de instânciar e devolver o objeto correto, isso é um _Factory method_. Não podemos evitar o fato de nossos _Factory methods_ crescerem ou serem alterados caso tenha que haver uma instânciação de um novo objeto, ou remoção de uma, mas ao menos estaremos alterando em uma classe respectiva, onde ela só tem um método, que tem apenas uma função, então o trabalho e o risco das alterações são bem menores em relação a if's _hard-coded_. Observe que simples nosso código na **Main** fica, atavés das _Factories_:
+Repare que agora, nosso código está muito mais flexível, temos uma classe abstrata que representa a nossa _Factory_ onde contém nosso _Factory method_ que recebe uma string com o nome do personagem,
+e retorna um objeto de uma classe concreta do personagem solicitado. Com essa implementação, tiramos a responsabilidade de decidir qual objeto instânciar da classe principal, e deixamos que as subclasses de CharacterFactory decidirem, através dos seus _Factory methods_, conseguimos manter o princípio de responsabilidade única para as classes, podemos agora criar várias _Factories_ que podem cuidar de outros _Characters_, se quiséssemos adicionar uma factory para personagens do **Mario**,**Tekken** ou **Sonic**, ao invés de uma cadeia de if's e elses, basta estendermos os comportamentos das nossas classes abstratas ( **_Se tivéssemos apenas uma factory, poderíamos ter implementado o método na classe abstrata, mas como quis deixar claro que poderíamos criar várias factories, deixei a implementação na classe concreta_** ). Esse é o conceito, criamos classes abstratas criadoras e classes que representam o produto, criamos implementações concretas, onde seus métodos cuidarão de instânciar e devolver o objeto correto, isso é um _Factory method_. Não podemos evitar o fato de nossos _Factory methods_ crescerem ou serem alterados caso tenha que haver uma instânciação de um novo objeto, ou remoção de uma, mas ao menos estaremos alterando em uma classe respectiva, onde ela só tem um método, que tem apenas uma função, então o trabalho e o risco das alterações são bem menores em relação a if's _hard-coded_. Observe que simples nosso código na **Main** fica, atavés das _Factories_:
 
 ```csharp
 namespace StreetFighter{ 
@@ -105,7 +105,7 @@ namespace StreetFighter{
 
         CharacterFactory streetFighterFactory = new StreetFighterFactory();
 
-        opponent = streetFighterFactory.GetNewCharacter(opponent);
+        this.opponent = streetFighterFactory.GetNewCharacter(opponentName);
       
         startFight(opponent);
 
